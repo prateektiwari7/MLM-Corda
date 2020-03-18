@@ -123,7 +123,7 @@ class PrintWholeTable() : FlowLogic<ArrayList<String>>() {
         val AddTransaction  : ArrayList<String> = ArrayList<String>()
 
         var number = tx1.size-1
-        while (number !=0){
+        while (number >= 0){
            var data=  tx1.get(number).toString()
             AddTransaction.add(data)
             number--
