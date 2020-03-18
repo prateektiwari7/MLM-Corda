@@ -4,7 +4,7 @@
 
 ## CorDapp Multi-level marketing (MLM)
 
-   ![alt text](/Volumes/Untitled/Users/yudiz/Chain_system/cordapp-template-kotlin/image/test.png)
+   ![alt text](https://github.com/prateektiwari7/MLM-Corda/blob/master/image/test.png)
 
 
 # Usage
