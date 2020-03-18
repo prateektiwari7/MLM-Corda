@@ -12,6 +12,7 @@ import net.corda.core.node.services.CordaService
 class CryptoValuesDatabaseService(services: ServiceHub) : DatabaseService(services) {
     init {
         setUpStorage()
+        createRewardtable()
     }
 
     /**
@@ -26,6 +27,21 @@ class CryptoValuesDatabaseService(services: ServiceHub) : DatabaseService(servic
         log.info("Token $token added to crypto_values table.")
     }
 
+    fun addReward(token: String,value: String) {
+        val query = "insert into $REWARD_TABLE values(?, ?)"
+
+        val params = mapOf(1 to token, 2 to value)
+
+        executeUpdate(query, params)
+        log.info("Token $token added to crypto_values table.")
+    }
+
+
+
+
+
+
+
 
     /**
      * Retrieves the value of a crypto token in the table of crypto values.
@@ -36,6 +52,23 @@ class CryptoValuesDatabaseService(services: ServiceHub) : DatabaseService(servic
         val params = mapOf(1 to token)
 
         val results = executeQuery(query, params) { it -> it.getString("value") }
+
+        if (results.isEmpty()) {
+            throw IllegalArgumentException("Token $token not present in database.")
+        }
+
+        val value = results.single()
+        log.info("Token $token read from crypto_values table.")
+        return value
+    }
+
+
+    fun queryRewardValue(token: String): String {
+        val query = "select reward from $REWARD_TABLE where token = ?"
+
+        val params = mapOf(1 to token)
+
+        val results = executeQuery(query, params) { it -> it.getString("reward") }
 
         if (results.isEmpty()) {
             throw IllegalArgumentException("Token $token not present in database.")
@@ -60,6 +93,21 @@ class CryptoValuesDatabaseService(services: ServiceHub) : DatabaseService(servic
         log.info("Created crypto_values table.")
     }
 
+    //REWAR_TABLE
+    private fun createRewardtable() {
+        val query = """
+            create table if not exists $REWARD_TABLE(
+                token varchar(64),
+                reward varchar(126)
+            )"""
+
+        executeUpdate(query, emptyMap())
+        log.info("Created crypto_values table.")
+    }
+
+
+
+
 
     fun querywholetable(): ArrayList<Any?>  {
         val query = "select * from $TABLE_NAME"
@@ -74,6 +122,27 @@ class CryptoValuesDatabaseService(services: ServiceHub) : DatabaseService(servic
         return results
     }
 
+    fun queryrewardwholetable(): ArrayList<Any?>  {
+        val query = "select * from $REWARD_TABLE"
+
+
+        val results = executeQuery3(query)
+
+        if (results.isEmpty()) {
+            throw IllegalArgumentException("Table not present in database.")
+        }
+
+        return results
+    }
+
+    fun updateRewardValue(token: String, value: String) {
+        val query = "update $REWARD_TABLE set reward = ? where token = ?"
+
+        val params = mapOf(1 to value, 2 to token)
+
+        executeUpdate(query, params)
+        log.info("Token $token updated in crypto_values table.")
+    }
 
 
 

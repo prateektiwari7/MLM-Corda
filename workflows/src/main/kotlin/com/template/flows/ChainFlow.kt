@@ -12,7 +12,7 @@ import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
-import javax.swing.plaf.nimbus.State
+
 
 // *********
 // * Flows *
@@ -21,7 +21,7 @@ import javax.swing.plaf.nimbus.State
 @InitiatingFlow
 @StartableByRPC
 class ChainFlow constructor( var Root:String,var ParentName: String,
-                            var Parenttx : String ,var Block_name: String, var Reward : String,  var party:Party): FlowLogic<SignedTransaction>() {
+                            var Parenttx : String ,var Block_name: String,  var party:Party): FlowLogic<SignedTransaction>() {
 
     @Suspendable
     override fun call() : SignedTransaction {
@@ -30,18 +30,22 @@ class ChainFlow constructor( var Root:String,var ParentName: String,
 
         val database = serviceHub.cordaService(CryptoValuesDatabaseService::class.java)
 
-        var namestate = ChainState(Root, "","",Block_name, "",party)
+        var namestate = ChainState(Root, "","",Block_name,party)
 
 
         if(serviceHub.vaultService.queryBy(ChainState::class.java).states.isEmpty()){
-            namestate = ChainState(Root, ParentName,Parenttx,Block_name, "",party)
+            namestate = ChainState(Root, ParentName,Parenttx,Block_name,party)
+            database.addReward(Block_name,Block_name)
+
         }
         else {
             var statelist = serviceHub.vaultService.queryBy(ChainState::class.java).states
             val InState = serviceHub.toStateAndRef<ChainState>(statelist.get(statelist.size-1).ref)
             val txhash=database.queryTokenValue(ParentName)
-            namestate = ChainState(Root,ParentName,txhash,Block_name, Reward,party)
-
+            namestate = ChainState(Root,ParentName,txhash,Block_name,party)
+            database.addReward(Block_name,Block_name)
+            var data= database.queryRewardValue(ParentName)
+            database.updateRewardValue(ParentName,data+Block_name)
         }
 
         val command = Command(ChainContract.Commands.Create(), listOf(party).map { it.owningKey })
@@ -58,7 +62,6 @@ class ChainFlow constructor( var Root:String,var ParentName: String,
         val tx1= subFlow(FinalityFlow(stx, sessions))
 
         database.addTokenValue(Block_name,tx1.toString())
-
 
         return tx1
     }
@@ -95,17 +98,18 @@ class Transactions : FlowLogic<String>() {
 
 @InitiatingFlow
 @StartableByRPC
-class Check_State(var Block_name: String,var tx1 : String) : FlowLogic<String>() {
+class Check_State(var Block_name: String) : FlowLogic<String>() {
     override val progressTracker = ProgressTracker()
 
     @Suspendable
     override fun call() : String {
 
         val database = serviceHub.cordaService(CryptoValuesDatabaseService::class.java)
-         database.addTokenValue(Block_name,tx1)
+        var data= database.queryRewardValue(Block_name)
 
-        var tx1=database.queryTokenValue(Block_name)
-        return tx1
+
+
+        return data
 
     }
 }
@@ -125,6 +129,28 @@ class PrintWholeTable() : FlowLogic<ArrayList<String>>() {
         var number = tx1.size-1
         while (number >= 0){
            var data=  tx1.get(number).toString()
+            AddTransaction.add(data)
+            number--
+        }
+        return AddTransaction
+    }
+}
+
+@InitiatingFlow
+@StartableByRPC
+class PrintrewardwholeTable() : FlowLogic<ArrayList<String>>() {
+    override val progressTracker = ProgressTracker()
+
+    @Suspendable
+    override fun call() : ArrayList<String>  {
+
+        val database = serviceHub.cordaService(CryptoValuesDatabaseService::class.java)
+        var tx1=  database.queryrewardwholetable()
+        val AddTransaction  : ArrayList<String> = ArrayList<String>()
+
+        var number = tx1.size-1
+        while (number >= 0){
+            var data=  tx1.get(number).toString()
             AddTransaction.add(data)
             number--
         }

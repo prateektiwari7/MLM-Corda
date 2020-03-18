@@ -7,6 +7,7 @@ import net.corda.core.flows.StartableByRPC
 import net.corda.core.utilities.ProgressTracker
 
 const val TABLE_NAME = "crypto_values"
+const val REWARD_TABLE="reward_Table"
 
 /**
  * Adds a crypto token and associated value to the table of crypto values.

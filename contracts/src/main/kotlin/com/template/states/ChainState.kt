@@ -11,8 +11,7 @@ import net.corda.core.identity.Party
 data class ChainState(val Root: String,
                       val ParentName: String,
                       val Parent: String,
-                      val Block_Name: String,
-                      val Reward: String, val party: Party) : ContractState {
+                      val Block_Name: String, val party: Party) : ContractState {
 
     override val participants: List<AbstractParty> = listOf(party);
     //To change initializer of created properties use File | Settings | File Templates.
