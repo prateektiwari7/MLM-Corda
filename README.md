@@ -4,10 +4,13 @@
 
 ## CorDapp Multi-level marketing (MLM)
 
-   ![alt text](https://github.com/prateektiwari7/MLM-Corda/blob/master/image/test.png)
+   ![here](https://github.com/prateektiwari7/MLM-Corda/blob/master/image/test.png)
 
 
 # Usage
     
     Reward system in MLM 
 
+### reward tree output 
+
+   ![here](https://github.com/prateektiwari7/MLM-Corda/blob/master/image/reward_table.png)
